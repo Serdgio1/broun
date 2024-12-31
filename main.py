@@ -1,8 +1,6 @@
 import pygame
 import pygame_gui
 import numpy as np
-from PyQt6.QtWidgets import QApplication, QWidget, QSlider, QLabel, QFormLayout
-from PyQt6.QtCore import Qt
 
 # Инициализация Pygame
 pygame.init()
@@ -16,23 +14,21 @@ pygame.display.set_caption("Симуляция частиц с температ�
 # Цвета
 BLACK = (0, 0, 0)
 BLUE = (100, 100, 255)
+WHITE = (255,255,255)
 
 # Fonts
 font = pygame.font.Font(None, 36)  # Инициализация шрифта
 
 # Параметры симуляции
-NUM_PARTICLES = 100  # Количество частиц
+NUM_PARTICLES = 150  # Количество частиц
 PARTICLE_RADIUS = 7  # Радиус частицы
 GRAVITY = 0.2  # Базовая гравитация
-GRID_SPACING = 30  # Расстояние между частицами в сетке
+GRID_SPACING = 22  # Расстояние между частицами в сетке
 VISCOSITY = 0.98  # Коэффициент вязкости
 ELASTICITY = 0.9  # Коэффициент упругости (0.9 = небольшая потеря энергии)
 temperature = -100  # Начальная температура (состояние)
 
-# Создание массивов для частиц
-positions = np.random.rand(NUM_PARTICLES, 2) * [WIDTH, (HEIGHT-200) // 2]  # Начальные координаты частиц
-velocities = (np.random.rand(NUM_PARTICLES, 2) - 0.5) * 2  # Скорости частиц
-states = np.array(["solid"] * NUM_PARTICLES)  # Состояния частиц
+
 
 # Load music file (замените "music.mp3" на ваш файл)
 pygame.mixer.music.load("music/sb_indreams(chosic.com).mp3")  # Убедитесь, что файл находится в одной папке или укажите путь
@@ -84,9 +80,15 @@ button_mus = button_music.get_rect(topleft=(WIDTH-70, HEIGHT-125))  # Позиц
 # Инициализация частиц в сетке
 def init_particles():
     global positions, velocities, states
-    x_start, y_start = 100, 100  # Начальная точка сетки
+
+    # Создание массивов для частиц
+    positions = np.random.rand(NUM_PARTICLES, 2) * [WIDTH, (HEIGHT - 200) // 2]  # Начальные координаты частиц
+    velocities = (np.random.rand(NUM_PARTICLES, 2) - 0.5) * 2  # Скорости частиц
+    states = np.array(["solid"] * NUM_PARTICLES)  # Состояния частиц
+
+    x_start, y_start = 50, 50  # Начальная точка сетки
     index = 0
-    for y in range(y_start, HEIGHT // 2, GRID_SPACING):
+    for y in range(y_start, HEIGHT -300, GRID_SPACING):
         for x in range(x_start, WIDTH - x_start, GRID_SPACING):
             if index >= NUM_PARTICLES:
                 break
@@ -95,7 +97,7 @@ def init_particles():
             index += 1
 
 
-init_particles()
+
 
 def update_particles():
     global velocities, positions, states
@@ -171,10 +173,90 @@ def draw_particles():
     for pos in positions:
         pygame.draw.circle(screen, BLUE, (int(pos[0]), int(pos[1])), PARTICLE_RADIUS)
 
+def scene_settings():
+    """Первая сцена: Настройка симуляции"""
+    global NUM_PARTICLES, PARTICLE_RADIUS, WIDTH, HEIGHT, GRID_SPACING
+    manager = pygame_gui.UIManager((WIDTH, HEIGHT))
+
+    # Элементы интерфейса
+    num_particles_input = pygame_gui.elements.UITextEntryLine(
+        relative_rect=pygame.Rect((350, 150), (200, 30)),
+        manager=manager
+    )
+    num_particles_input.set_text(str(NUM_PARTICLES))
+
+    particle_radius_input = pygame_gui.elements.UITextEntryLine(
+        relative_rect=pygame.Rect((350, 200), (200, 30)),
+        manager=manager
+    )
+    particle_radius_input.set_text(str(PARTICLE_RADIUS))
+
+    screen_width_input = pygame_gui.elements.UITextEntryLine(
+        relative_rect=pygame.Rect((350, 250), (200, 30)),
+        manager=manager
+    )
+    screen_width_input.set_text(str(WIDTH))
+
+    screen_height_input = pygame_gui.elements.UITextEntryLine(
+        relative_rect=pygame.Rect((350, 300), (200, 30)),
+        manager=manager
+    )
+    screen_height_input.set_text(str(HEIGHT))
+
+    start_button = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((350, 400), (200, 50)),
+        text="Начать симуляцию",
+        manager=manager
+    )
+
+    running = True
+    clock = pygame.time.Clock()
+
+    while running:
+        time_delta = clock.tick(60) / 1000.0
+        screen.fill(BLACK)
+
+        # Заголовок
+        title = font.render("Настройка симуляции", True, WHITE)
+        screen.blit(title, (300, 50))
+
+        # Подписи
+        screen.blit(font.render("Количество частиц:", True, WHITE), (150, 150))
+        screen.blit(font.render("Радиус частиц:", True, WHITE), (150, 200))
+        screen.blit(font.render("Ширина экрана:", True, WHITE), (150, 250))
+        screen.blit(font.render("Высота экрана:", True, WHITE), (150, 300))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return False  # Выход из приложения
+
+            manager.process_events(event)
+
+            # Переход к симуляции
+            if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                if event.ui_element == start_button:
+                    try:
+                        NUM_PARTICLES = int(num_particles_input.get_text())
+                        PARTICLE_RADIUS = int(particle_radius_input.get_text())
+                        WIDTH = int(screen_width_input.get_text())
+                        HEIGHT = int(screen_height_input.get_text())
+                        GRID_SPACING = PARTICLE_RADIUS+15
+                    except ValueError:
+                        print("Введите корректные числа!")
+                        continue
+                    return True  # Переход к симуляции
+
+        manager.update(time_delta)
+        manager.draw_ui(screen)
+        pygame.display.flip()
+
 # Основной цикл
 running = True
 clock = pygame.time.Clock()
 f_music = False
+scene_settings()
+init_particles()
 
 while running:
     time_delta = clock.tick(60) / 1000.0
@@ -231,5 +313,7 @@ while running:
     manager.draw_ui(screen)
 
     pygame.display.flip()
+
+
 
 pygame.quit()
