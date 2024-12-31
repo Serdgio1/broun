@@ -1,148 +1,235 @@
-import tkinter
-from tkinter import *
-from random import  *
+import pygame
+import pygame_gui
+import numpy as np
+from PyQt6.QtWidgets import QApplication, QWidget, QSlider, QLabel, QFormLayout
+from PyQt6.QtCore import Qt
 
-lis = []
+# Инициализация Pygame
+pygame.init()
+pygame.mixer.init()
 
-W, H = 600 ,500
-tk = Tk()
-canvas = Canvas(tk, width=W,height=H)
-canvas.pack()
-value = tkinter.IntVar()
-horizontal = Scale(tk, length=W/2*1.5  ,from_=0,to=100,orient=HORIZONTAL,command=lambda val: print(value.get()),variable=value)
-horizontal.pack()
+# Параметры экрана
+WIDTH, HEIGHT = 900, 800
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Симуляция частиц с температурой")
 
-class Ball:
-    def __init__(self, size, color, speedx, speedy):
-        n = randint(0,W-size)
-        y = randint(0,H-size)
+# Цвета
+BLACK = (0, 0, 0)
+BLUE = (100, 100, 255)
 
-        if n and n-size and n+size not in lis:
-            self.ball = canvas.create_oval(n,y,n+size,y+size,fill=color)
-            lis.append(n)
-        self.create = [True, True, True, True, True]
-        self.pos_s = []
-        self.speedx = speedx
-        self.speedy = speedy
-        self.movement()
+# Fonts
+font = pygame.font.Font(None, 36)  # Инициализация шрифта
 
-    def check(self):
-        if self.speedx > 0:
-            self.speedx = 0
-            self.speedx += randint(value.get()-2,value.get()+2)
+# Параметры симуляции
+NUM_PARTICLES = 100  # Количество частиц
+PARTICLE_RADIUS = 7  # Радиус частицы
+GRAVITY = 0.2  # Базовая гравитация
+GRID_SPACING = 30  # Расстояние между частицами в сетке
+VISCOSITY = 0.98  # Коэффициент вязкости
+ELASTICITY = 0.9  # Коэффициент упругости (0.9 = небольшая потеря энергии)
+temperature = -100  # Начальная температура (состояние)
+
+# Создание массивов для частиц
+positions = np.random.rand(NUM_PARTICLES, 2) * [WIDTH, (HEIGHT-200) // 2]  # Начальные координаты частиц
+velocities = (np.random.rand(NUM_PARTICLES, 2) - 0.5) * 2  # Скорости частиц
+states = np.array(["solid"] * NUM_PARTICLES)  # Состояния частиц
+
+# Load music file (замените "music.mp3" на ваш файл)
+pygame.mixer.music.load("music/sb_indreams(chosic.com).mp3")  # Убедитесь, что файл находится в одной папке или укажите путь
+pygame.mixer.music.set_volume(0.2)   # Установить громкость (0.0 до 1.0)
+
+# Инициализация интерфейса
+manager = pygame_gui.UIManager((WIDTH, HEIGHT))
+slider = pygame_gui.elements.UIHorizontalSlider(
+    relative_rect=pygame.Rect((100, HEIGHT-150), (700, 30)),
+    start_value=temperature,
+    value_range=(-100, 150),
+    manager=manager
+)
+slider2 = pygame_gui.elements.UIHorizontalSlider(
+    relative_rect=pygame.Rect((100, HEIGHT-85), (700, 30)),
+    start_value=temperature+273,
+    value_range=(173, 423),
+    manager=manager
+)
+
+# Add labels to display slider values
+label1 = pygame_gui.elements.UILabel(
+    relative_rect=pygame.Rect((100, HEIGHT-125), (600, 30)),
+    text=f"Slider Celsius Value: {slider.get_current_value()}",
+    manager=manager
+)
+
+label2 = pygame_gui.elements.UILabel(
+    relative_rect=pygame.Rect((100, HEIGHT-60), (600, 30)),
+    text=f"Slider Kelvin Value: {slider2.get_current_value()}",
+    manager=manager
+)
+
+# Load button image
+button_repeat = pygame.image.load("images/Repeat-Right@2x.png")
+button_repeat = pygame.transform.scale(button_repeat, (50, 50))  # Масштабирование кнопки
+button_exit = pygame.image.load("images/img.png")
+button_exit = pygame.transform.scale(button_exit, (50, 50))  # Масштабирование кнопки
+button_music = pygame.image.load("images/Music-On@2x.png")
+button_music = pygame.transform.scale(button_music, (50, 50))  # Масштабирование кнопки
+
+# Button properties
+button_rep = button_repeat.get_rect(topleft=(10, HEIGHT-170))  # Позиция кнопки
+button_ex = button_exit.get_rect(topleft=(10, HEIGHT-100))  # Позиция кнопки
+button_mus = button_music.get_rect(topleft=(WIDTH-70, HEIGHT-125))  # Позиция кнопки
+
+# Функции
+
+# Инициализация частиц в сетке
+def init_particles():
+    global positions, velocities, states
+    x_start, y_start = 100, 100  # Начальная точка сетки
+    index = 0
+    for y in range(y_start, HEIGHT // 2, GRID_SPACING):
+        for x in range(x_start, WIDTH - x_start, GRID_SPACING):
+            if index >= NUM_PARTICLES:
+                break
+            positions[index] = [x, y]
+            velocities[index] = [0, 0]
+            index += 1
+
+
+init_particles()
+
+def update_particles():
+    global velocities, positions, states
+
+    for i in range(NUM_PARTICLES):
+        for j in range(i + 1, NUM_PARTICLES):
+            dist = np.linalg.norm(positions[i] - positions[j])
+            if dist < 2 * PARTICLE_RADIUS:  # Условие столкновения
+                resolve_collision(i, j)
+
+        # Обновляем движения частиц
+        if temperature < 0:
+            # Твёрдое состояние с градацией тряски
+            velocities[i] *= 0.9  # Замедляем движение
+            intensity = (100-abs(temperature)) / 100.0  # Интенсивность тряски (от 0 до 1)
+            positions[i][0] += np.random.uniform(-intensity, intensity)
+            positions[i][1] += np.random.uniform(-intensity, intensity)
+        elif 0 <= temperature < 100:
+            # Жидкое состояние
+            velocities[i][1] += GRAVITY  # Гравитация
+            velocities[i] *= VISCOSITY  # Применяем вязкость
+
+            # Ограничиваем частицы в нижней части экрана
+            if positions[i][1] >= HEIGHT-200 - PARTICLE_RADIUS:
+                positions[i][1] = HEIGHT -200- PARTICLE_RADIUS
+                velocities[i][1] = 0  # Останавливаем падение
+
+            positions[i] += velocities[i]
+
+            # Движение у дна
+            if positions[i][1] >= HEIGHT-200 - PARTICLE_RADIUS - 10:
+                velocities[i][0] += (np.random.rand() - 0.5) * temperature/20  # Хаотичное движение влево-вправо
         else:
-            self.speedx = 0
-            self.speedx -= randint(value.get()-2,value.get()+2)
+            # Газообразное состояние
+            velocities[i][1] -= 3*GRAVITY  # Гравитация
+            velocities[i] += (np.random.rand(2) - 0.5) * temperature/20  # Хаотичное движение
+            positions[i] += velocities[i]
 
-        if self.speedy > 0:
-            self.speedy = 0
-            self.speedy += randint(value.get()-2,value.get()+2)
-        else:
-            self.speedy = 0
-            self.speedy -= randint(value.get()-2,value.get()+2)
+        # Ограничиваем движение частиц внутри экрана
+        if positions[i][0] <= PARTICLE_RADIUS or positions[i][0] >= WIDTH - PARTICLE_RADIUS:
+            velocities[i][0] *= -ELASTICITY
+        if positions[i][1] <= PARTICLE_RADIUS:
+            velocities[i][1] *= -ELASTICITY
 
+        positions[i][0] = np.clip(positions[i][0], PARTICLE_RADIUS, WIDTH - PARTICLE_RADIUS)
+        positions[i][1] = np.clip(positions[i][1], PARTICLE_RADIUS, HEIGHT-200 - PARTICLE_RADIUS)
 
-    def all_move(self, pos):
-        if pos[2] >= W or pos[0] <= 0:
-            self.speedx *= -1
+def resolve_collision(i, j):
+    # Вектор между частицами
+    delta = positions[i] - positions[j]
+    distance = np.linalg.norm(delta)
+    if distance == 0:  # Предотвращение деления на 0
+        distance = 0.01
+    normal = delta / distance
 
-        if pos[3] >= H or pos[1] <= 0:
-            self.speedy *= -1
+    # Разделяем частицы
+    overlap = 2 * PARTICLE_RADIUS - distance
+    positions[i] += normal * (overlap / 2)
+    positions[j] -= normal * (overlap / 2)
 
-        if pos[0] >= W or pos[1] >= H:
-            pos[0] = randint(0,W-40)
+    # Пересчёт скоростей после столкновения
+    relative_velocity = velocities[i] - velocities[j]
+    velocity_along_normal = np.dot(relative_velocity, normal)
+    if velocity_along_normal > 0:  # Частицы расходятся, не нужно обрабатывать
+        return
 
-    def not_move(self,pos_s, pos):
+    impulse = -(1 + ELASTICITY) * velocity_along_normal
+    impulse_vector = impulse * normal
+    velocities[i] += impulse_vector / 2
+    velocities[j] -= impulse_vector / 2
 
-        if pos[2] >= pos_s[2] or pos[0] <= pos_s[0] or pos[2] >= W or pos[0] <= 0:
-            self.speedx *= -1
+def draw_particles():
+    for pos in positions:
+        pygame.draw.circle(screen, BLUE, (int(pos[0]), int(pos[1])), PARTICLE_RADIUS)
 
-        if pos[3] >= pos_s[3] or pos[1] <= pos_s[1] or pos[3] >= H or pos[1] <= 0:
-            self.speedy *= -1
+# Основной цикл
+running = True
+clock = pygame.time.Clock()
+f_music = False
 
+while running:
+    time_delta = clock.tick(60) / 1000.0
+    screen.fill(BLACK)
 
-    def movement(self):
-        canvas.move(self.ball,self.speedx,self.speedy)
-        pos = canvas.coords(self.ball)
+    rect_x, rect_y = 0, HEIGHT-199  # Position of the rectangle
+    rect_width, rect_height = WIDTH, 5  # Dimensions of the rectangle
+    pygame.draw.rect(screen, (255, 255, 255), (rect_x, rect_y, rect_width, rect_height))
 
+    # Get mouse position
+    mouse_pos = pygame.mouse.get_pos()
 
-        if value.get() >= 50:
-            for i in range(len(self.create)):
-                self.create[i] = True
-            self.all_move(pos)
-            self.check()
-            canvas.delete('square0','square1', 'square2', 'square3', 'square4')
+    # Draw button image
+    screen.blit(button_repeat, button_rep.topleft)
+    screen.blit(button_exit, button_ex.topleft)
+    screen.blit(button_music, button_mus.topleft)
 
-        elif value.get() >= 40:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        manager.process_events(event)
 
-            canvas.delete('square0', 'square1', 'square2', 'square3')
-            self.create[3] = True
-            if self.create[4]:
+        # Synchronize slider values with offset
+        if event.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:  # Updated to new API
+            if event.ui_element == slider:
+                slider2.set_current_value(slider.get_current_value() + 273)
+            elif event.ui_element == slider2:
+                slider.set_current_value(slider2.get_current_value() - 273)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                init_particles()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if button_rep.collidepoint(event.pos):
+                init_particles()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if button_ex.collidepoint(event.pos):
+                running=False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if button_mus.collidepoint(event.pos):
+                f_music = not(f_music)
+                if f_music:
+                    pygame.mixer.music.play(-1)
+                else:
+                    pygame.mixer.music.stop()
+            # Update labels
+    label1.set_text(f"Slider Celsius Value: {slider.get_current_value():.2f}")
+    label2.set_text(f"Slider Kelvin Value: {slider2.get_current_value():.2f}")
+    # Обновляем значение температуры из слайдера
+    temperature = slider.get_current_value()
+    # Обновление частиц и интерфейса
+    update_particles()
+    draw_particles()
+    manager.update(time_delta)
+    manager.draw_ui(screen)
 
-                square = canvas.create_rectangle(pos[0]-200, pos[1]-200, pos[2]+200, pos[3]+200,outline='',tags='square4')
-                self.pos_s = canvas.coords(square)
-                self.create[4] = False
-            self.not_move(self.pos_s, pos)
-            self.check()
+    pygame.display.flip()
 
-        elif value.get() >= 30:
-            canvas.delete('square0', 'square1', 'square2', 'square4')
-            self.create[4] = True
-            self.create[2] = True
-            if self.create[3]:
-                square = canvas.create_rectangle(pos[0]-90,pos[1]-90,pos[2]+90,pos[3]+90,outline='', tags='square3')
-                self.pos_s = canvas.coords(square)
-                self.create[3] = False
-            self.not_move(self.pos_s, pos)
-            self.check()
-
-        elif value.get() >= 20:
-            canvas.delete('square0', 'square1', 'square3', 'square4')
-            self.create[3] = True
-            self.create[1] = True
-            if self.create[2]:
-                canvas.config(borderwidth=0)
-                square = canvas.create_rectangle(pos[0]-50,pos[1]-50,pos[2]+50,pos[3]+50, outline='',tags='square2')
-                self.pos_s = canvas.coords(square)
-                self.create[2] = False
-            self.not_move(self.pos_s, pos)
-            self.check()
-
-        elif value.get() >= 10:
-            canvas.delete('square0', 'square2', 'square3', 'square4')
-            self.create[2] = True
-            self.create[0] = True
-            if self.create[1]:
-                canvas.config(borderwidth=0)
-                square = canvas.create_rectangle(pos[0]-20,pos[1]-20,pos[2]+20,pos[3]+20, outline='',tags='square1')
-                self.pos_s = canvas.coords(square)
-                self.create[1] = False
-            self.not_move(self.pos_s, pos)
-            self.check()
-
-        elif value.get() > 0:
-            canvas.delete('square1', 'square2', 'square3', 'square4')
-            self.create[1] = True
-            if self.create[0]:
-                canvas.config(borderwidth=0)
-                square = canvas.create_rectangle(pos[0]-1,pos[1]-1,pos[2]+1,pos[3]+1, outline='',tags='square0')
-                self.pos_s = canvas.coords(square)
-                self.create[0] = False
-            self.not_move(self.pos_s, pos)
-            self.check()
-        else:
-            self.speedx = 0
-            self.speedy = 0
-
-        tk.after(40,self.movement)
-
-
-objs = list()
-for i in range(38):
-    objs.append(Ball(40, 'yellow', 0, 0))
-
-
-
-
-
-tk.mainloop()
+pygame.quit()
