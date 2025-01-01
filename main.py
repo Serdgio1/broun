@@ -175,33 +175,23 @@ def draw_particles():
 
 def scene_settings():
     """Первая сцена: Настройка симуляции"""
-    global NUM_PARTICLES, PARTICLE_RADIUS, WIDTH, HEIGHT, GRID_SPACING
+    global NUM_PARTICLES, PARTICLE_RADIUS, GRID_SPACING
     manager = pygame_gui.UIManager((WIDTH, HEIGHT))
 
     # Элементы интерфейса
     num_particles_input = pygame_gui.elements.UITextEntryLine(
-        relative_rect=pygame.Rect((350, 150), (200, 30)),
+        relative_rect=pygame.Rect((350, 300), (200, 30)),
         manager=manager
     )
     num_particles_input.set_text(str(NUM_PARTICLES))
 
     particle_radius_input = pygame_gui.elements.UITextEntryLine(
-        relative_rect=pygame.Rect((350, 200), (200, 30)),
+        relative_rect=pygame.Rect((350, 350), (200, 30)),
         manager=manager
     )
     particle_radius_input.set_text(str(PARTICLE_RADIUS))
 
-    screen_width_input = pygame_gui.elements.UITextEntryLine(
-        relative_rect=pygame.Rect((350, 250), (200, 30)),
-        manager=manager
-    )
-    screen_width_input.set_text(str(WIDTH))
 
-    screen_height_input = pygame_gui.elements.UITextEntryLine(
-        relative_rect=pygame.Rect((350, 300), (200, 30)),
-        manager=manager
-    )
-    screen_height_input.set_text(str(HEIGHT))
 
     start_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((350, 400), (200, 50)),
@@ -218,13 +208,12 @@ def scene_settings():
 
         # Заголовок
         title = font.render("Настройка симуляции", True, WHITE)
-        screen.blit(title, (300, 50))
+        screen.blit(title, (300, 150))
 
         # Подписи
-        screen.blit(font.render("Количество частиц:", True, WHITE), (150, 150))
-        screen.blit(font.render("Радиус частиц:", True, WHITE), (150, 200))
-        screen.blit(font.render("Ширина экрана:", True, WHITE), (150, 250))
-        screen.blit(font.render("Высота экрана:", True, WHITE), (150, 300))
+        screen.blit(font.render("Количество частиц:", True, WHITE), (100, 300))
+        screen.blit(font.render("Радиус частиц:", True, WHITE), (150, 350))
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -239,8 +228,6 @@ def scene_settings():
                     try:
                         NUM_PARTICLES = int(num_particles_input.get_text())
                         PARTICLE_RADIUS = int(particle_radius_input.get_text())
-                        WIDTH = int(screen_width_input.get_text())
-                        HEIGHT = int(screen_height_input.get_text())
                         GRID_SPACING = PARTICLE_RADIUS+15
                     except ValueError:
                         print("Введите корректные числа!")
