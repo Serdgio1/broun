@@ -1,62 +1,9 @@
 import pygame
-import sys
-import os
+import pygame_gui
+import numpy as np
 
 pygame.init()
 pygame.mixer.init()
-
-if not hasattr(pygame, 'DIRECTION_LTR'):
-    pygame.DIRECTION_LTR = 0
-    pygame.DIRECTION_RTL = 1
-
-if not hasattr(pygame, 'FRect'):
-    class FRect:
-        def __init__(self, *args):
-            if len(args) == 1:
-                rect = args[0]
-                self.x = float(rect.x)
-                self.y = float(rect.y)
-                self.w = float(rect.w)
-                self.h = float(rect.h)
-            elif len(args) == 2:
-                pos, size = args
-                self.x = float(pos[0])
-                self.y = float(pos[1])
-                self.w = float(size[0])
-                self.h = float(size[1])
-            elif len(args) == 4:
-                self.x = float(args[0])
-                self.y = float(args[1])
-                self.w = float(args[2])
-                self.h = float(args[3])
-            else:
-                self.x = 0.0
-                self.y = 0.0
-                self.w = 0.0
-                self.h = 0.0
-        
-        def __getitem__(self, key):
-            return [self.x, self.y, self.w, self.h][key]
-        
-        def __setitem__(self, key, value):
-            if key == 0:
-                self.x = float(value)
-            elif key == 1:
-                self.y = float(value)
-            elif key == 2:
-                self.w = float(value)
-            elif key == 3:
-                self.h = float(value)
-    
-    pygame.FRect = FRect
-
-if getattr(sys, 'frozen', False):
-    base_path = sys._MEIPASS
-else:
-    base_path = os.path.dirname(os.path.abspath(__file__))
-
-import pygame_gui
-import numpy as np
 
 WIDTH, HEIGHT = 1200, 900
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -92,8 +39,7 @@ CONTROL_PANEL_WIDTH = 320
 SIMULATION_AREA_WIDTH = WIDTH - CONTROL_PANEL_WIDTH
 
 try:
-    music_path = os.path.join(base_path, "music", "sb_indreams(chosic.com).mp3")
-    pygame.mixer.music.load(music_path)
+    pygame.mixer.music.load("music/sb_indreams(chosic.com).mp3")
     pygame.mixer.music.set_volume(0.2)
     music_available = True
 except:
