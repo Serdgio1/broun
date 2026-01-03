@@ -1,8 +1,13 @@
 import pygame
-import pygame_gui
-import numpy as np
 import sys
 import os
+
+if not hasattr(pygame, 'DIRECTION_LTR'):
+    pygame.DIRECTION_LTR = 0
+    pygame.DIRECTION_RTL = 1
+
+import pygame_gui
+import numpy as np
 
 if getattr(sys, 'frozen', False):
     base_path = sys._MEIPASS
