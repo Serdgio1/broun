@@ -26,21 +26,23 @@ jobs:
     - name: Build executable
       run: |
         pyinstaller main.spec
-    
-    - name: Create ZIP archive
-      run: |
-        Compress-Archive -Path dist\particle_simulation\* -DestinationPath particle_simulation_windows.zip -Force
+        if (-not (Test-Path "dist\particle_simulation.exe")) {
+          Write-Error "Executable not found!"
+          exit 1
+        }
+        Write-Host "Executable size: $((Get-Item 'dist\particle_simulation.exe').Length / 1MB) MB"
     
     - name: Upload Windows executable
       uses: actions/upload-artifact@v4
       with:
         name: particle-simulation-windows
-        path: particle_simulation_windows.zip
+        path: dist/particle_simulation.exe
+        retention-days: 30
     
     - name: Create Release (if tag)
       if: github.event_name == 'release'
       uses: softprops/action-gh-release@v1
       with:
-        files: particle_simulation_windows.zip
+        files: dist/particle_simulation.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

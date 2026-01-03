@@ -1,6 +1,13 @@
 import pygame
 import pygame_gui
 import numpy as np
+import sys
+import os
+
+if getattr(sys, 'frozen', False):
+    base_path = sys._MEIPASS
+else:
+    base_path = os.path.dirname(os.path.abspath(__file__))
 
 pygame.init()
 pygame.mixer.init()
@@ -39,7 +46,8 @@ CONTROL_PANEL_WIDTH = 320
 SIMULATION_AREA_WIDTH = WIDTH - CONTROL_PANEL_WIDTH
 
 try:
-    pygame.mixer.music.load("music/sb_indreams(chosic.com).mp3")
+    music_path = os.path.join(base_path, "music", "sb_indreams(chosic.com).mp3")
+    pygame.mixer.music.load(music_path)
     pygame.mixer.music.set_volume(0.2)
     music_available = True
 except:
