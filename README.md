@@ -70,6 +70,27 @@ python main.py
 - **Music Button**: Toggle background music
 - **Exit Button**: Quit the application
 
+## Building Executables
+
+### macOS
+```bash
+pip install pyinstaller
+pyinstaller main.spec
+```
+Executable: `dist/particle_simulation/particle_simulation`
+
+### Windows
+On a Windows machine:
+```cmd
+pip install pygame pygame_gui numpy pyinstaller
+pyinstaller main.spec
+```
+Executable: `dist\particle_simulation\particle_simulation.exe`
+
+**Note:** The macOS executable won't work on Windows. You need to build on Windows to create a Windows .exe file.
+
+See `BUILD_WINDOWS.md` for detailed Windows build instructions.
+
 ## Features
 
 - **Color-coded particles**:
