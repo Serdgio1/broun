@@ -6,6 +6,47 @@ if not hasattr(pygame, 'DIRECTION_LTR'):
     pygame.DIRECTION_LTR = 0
     pygame.DIRECTION_RTL = 1
 
+if not hasattr(pygame, 'FRect'):
+    class FRect:
+        def __init__(self, *args):
+            if len(args) == 1:
+                rect = args[0]
+                self.x = float(rect.x)
+                self.y = float(rect.y)
+                self.w = float(rect.w)
+                self.h = float(rect.h)
+            elif len(args) == 2:
+                pos, size = args
+                self.x = float(pos[0])
+                self.y = float(pos[1])
+                self.w = float(size[0])
+                self.h = float(size[1])
+            elif len(args) == 4:
+                self.x = float(args[0])
+                self.y = float(args[1])
+                self.w = float(args[2])
+                self.h = float(args[3])
+            else:
+                self.x = 0.0
+                self.y = 0.0
+                self.w = 0.0
+                self.h = 0.0
+        
+        def __getitem__(self, key):
+            return [self.x, self.y, self.w, self.h][key]
+        
+        def __setitem__(self, key, value):
+            if key == 0:
+                self.x = float(value)
+            elif key == 1:
+                self.y = float(value)
+            elif key == 2:
+                self.w = float(value)
+            elif key == 3:
+                self.h = float(value)
+    
+    pygame.FRect = FRect
+
 import pygame_gui
 import numpy as np
 
