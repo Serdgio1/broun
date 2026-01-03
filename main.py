@@ -2,6 +2,9 @@ import pygame
 import sys
 import os
 
+pygame.init()
+pygame.mixer.init()
+
 if not hasattr(pygame, 'DIRECTION_LTR'):
     pygame.DIRECTION_LTR = 0
     pygame.DIRECTION_RTL = 1
@@ -47,16 +50,13 @@ if not hasattr(pygame, 'FRect'):
     
     pygame.FRect = FRect
 
-import pygame_gui
-import numpy as np
-
 if getattr(sys, 'frozen', False):
     base_path = sys._MEIPASS
 else:
     base_path = os.path.dirname(os.path.abspath(__file__))
 
-pygame.init()
-pygame.mixer.init()
+import pygame_gui
+import numpy as np
 
 WIDTH, HEIGHT = 1200, 900
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
