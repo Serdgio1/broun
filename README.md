@@ -1,107 +1,150 @@
-# Particle Physics Simulation
+# 🔬 Particle Physics Simulation
 
-A particle physics simulation with temperature-based state changes (solid, liquid, gas).
+An interactive particle physics simulation with temperature-based state changes (solid, liquid, gas). Watch particles transform and interact based on temperature in real-time!
 
-## Requirements
+![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![Pygame](https://img.shields.io/badge/pygame-ce-2.5+-green.svg)
+![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
+
+## ✨ Features
+
+- **🌡️ Temperature-based physics**: Particles change behavior based on temperature
+  - 🔵 **Solid state** (< 0°C): Particles vibrate in place
+  - 🔷 **Liquid state** (0-100°C): Particles flow with gravity and viscosity
+  - 🔶 **Gas state** (> 100°C): Particles move freely with increased velocity
+
+- **⚙️ Interactive controls**:
+  - Real-time temperature adjustment (Celsius & Kelvin)
+  - Customizable particle count and radius
+  - Reset functionality
+  - Background music toggle
+
+- **🎮 Real-time physics simulation**:
+  - Collision detection between particles
+  - Gravity effects
+  - Viscosity modeling
+  - Elastic collisions
+  - Visual particle effects with glow
+
+## 🚀 Quick Start
+
+### Prerequisites
 
 - Python 3.8 or higher
-- pygame
-- pygame_gui
-- numpy
+- pip (Python package manager)
 
-## Installation
+### Installation
 
-### Quick Fix (if you get DIRECTION_LTR import errors)
-
-Run the fix script:
+1. **Clone the repository**:
 ```bash
-./fix_dependencies.sh
+git clone https://github.com/Serdgio1/broun.git
+cd broun
 ```
 
-Or manually:
+2. **Install dependencies**:
 ```bash
-source venv_mac/bin/activate
-pip uninstall -y pygame pygame-ce
+pip install -r requirements.txt
+```
+
+**Note for macOS users**: The project uses `pygame-ce` instead of `pygame` for better compatibility. If you encounter import errors, use:
+```bash
 pip install pygame-ce pygame_gui numpy
 ```
 
-### Option 1: Install dependencies directly (recommended for macOS)
+### Running the Application
 
-```bash
-pip3 install pygame-ce pygame_gui numpy
-```
-
-**Note:** Use `pygame-ce` instead of `pygame` for better macOS compatibility.
-
-### Option 2: Create a new virtual environment
-
-```bash
-# Create a new virtual environment
-python3 -m venv venv_mac
-
-# Activate it
-source venv_mac/bin/activate
-
-# Install dependencies (use pygame-ce for macOS)
-pip install pygame-ce pygame_gui numpy
-```
-
-## Running the Application
-
-### If you installed dependencies directly:
 ```bash
 python3 main.py
 ```
 
-### If you're using a virtual environment:
+Or with virtual environment:
 ```bash
-# Activate the virtual environment first
-source venv_mac/bin/activate
-
-# Then run
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
 python main.py
 ```
 
-## Controls
+## 🎮 Controls
 
-- **Temperature Sliders**: Adjust temperature in Celsius or Kelvin
-- **R Key**: Reset/restart particles
-- **Reset Button**: Reset particles
-- **Music Button**: Toggle background music
-- **Exit Button**: Quit the application
+| Action | Description |
+|--------|-------------|
+| **Temperature Sliders** | Adjust temperature in Celsius or Kelvin |
+| **R Key** | Reset/restart particles |
+| **Reset Button** | Reset particles to initial state |
+| **Music Button** | Toggle background music on/off |
+| **Exit Button** | Quit the application |
 
-## Building Executables
+## 📦 Building Executables
 
 ### macOS
 ```bash
 pip install pyinstaller
-pyinstaller main.spec
+pyinstaller --onefile --windowed main.py
 ```
-Executable: `dist/particle_simulation/particle_simulation`
 
 ### Windows
-On a Windows machine:
-```cmd
-pip install pygame pygame_gui numpy pyinstaller
-pyinstaller main.spec
+```bash
+pip install pyinstaller
+pyinstaller --onefile --windowed main.py
 ```
-Executable: `dist\particle_simulation\particle_simulation.exe`
 
-**Note:** The macOS executable won't work on Windows. You need to build on Windows to create a Windows .exe file.
+The executable will be created in the `dist/` directory.
 
-See `BUILD_WINDOWS.md` for detailed Windows build instructions.
+## 🏗️ Project Structure
 
-## Features
+```
+broun/
+├── main.py              # Main application code
+├── requirements.txt     # Python dependencies
+├── README.md           # This file
+├── images/             # UI images and icons
+└── music/              # Background music (optional)
+```
 
-- **Color-coded particles**:
-  - 🔵 Blue = Solid state (temperature < 0°C)
-  - 🔷 Cyan = Liquid state (0-100°C)
-  - 🔶 Orange = Gas state (>100°C)
+## 🔧 Technical Details
 
-- **Real-time physics simulation** with:
-  - Collision detection
-  - Gravity effects
-  - Viscosity
-  - Elasticity
-  - Temperature-based state changes
+- **Physics Engine**: Custom particle system with collision detection
+- **Rendering**: Pygame for graphics and UI
+- **UI Framework**: pygame_gui for interactive controls
+- **Math Library**: NumPy for efficient calculations
 
+### Physics Parameters
+
+- **Gravity**: 0.2 (affects liquid and gas states)
+- **Viscosity**: 0.98 (liquid state damping)
+- **Elasticity**: 0.9 (collision energy retention)
+- **Particle Radius**: 7 pixels (configurable)
+- **Default Particle Count**: 150 (configurable)
+
+## 🎨 Screenshots
+
+*Add screenshots here to showcase the simulation in different states*
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to:
+- Report bugs
+- Suggest new features
+- Submit pull requests
+- Improve documentation
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👤 Author
+
+**Serdgio1**
+
+- GitHub: [@Serdgio1](https://github.com/Serdgio1)
+
+## 🙏 Acknowledgments
+
+- Built with [Pygame CE](https://github.com/pygame-community/pygame-ce)
+- UI powered by [pygame_gui](https://github.com/MyreMylar/pygame_gui)
+- Physics calculations using [NumPy](https://numpy.org/)
+
+---
+
+⭐ If you find this project interesting, consider giving it a star!
