@@ -1,4 +1,4 @@
-# 🔬 Particle Physics Simulation
+# Particle Physics Simulation
 
 An interactive particle physics simulation with temperature-based state changes (solid, liquid, gas). Watch particles transform and interact based on temperature in real-time!
 
@@ -6,27 +6,27 @@ An interactive particle physics simulation with temperature-based state changes 
 ![Pygame](https://img.shields.io/badge/pygame-ce-2.5+-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
 
-## ✨ Features
+## Features
 
-- **🌡️ Temperature-based physics**: Particles change behavior based on temperature
-  - 🔵 **Solid state** (< 0°C): Particles vibrate in place
-  - 🔷 **Liquid state** (0-100°C): Particles flow with gravity and viscosity
-  - 🔶 **Gas state** (> 100°C): Particles move freely with increased velocity
+- **Temperature-based physics**: Particles change behavior based on temperature
+  - **Solid state** (< 0°C): Particles vibrate in place
+  - **Liquid state** (0-100°C): Particles flow with gravity and viscosity
+  - **Gas state** (> 100°C): Particles move freely with increased velocity
 
-- **⚙️ Interactive controls**:
+- **Interactive controls**:
   - Real-time temperature adjustment (Celsius & Kelvin)
   - Customizable particle count and radius
   - Reset functionality
   - Background music toggle
 
-- **🎮 Real-time physics simulation**:
+- **Real-time physics simulation**:
   - Collision detection between particles
   - Gravity effects
   - Viscosity modeling
   - Elastic collisions
   - Visual particle effects with glow
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -65,7 +65,7 @@ pip install -r requirements.txt
 python main.py
 ```
 
-## 🎮 Controls
+## Controls
 
 | Action | Description |
 |--------|-------------|
@@ -75,7 +75,7 @@ python main.py
 | **Music Button** | Toggle background music on/off |
 | **Exit Button** | Quit the application |
 
-## 📦 Building Executables
+## Building Executables
 
 ### macOS
 ```bash
@@ -91,7 +91,7 @@ pyinstaller --onefile --windowed main.py
 
 The executable will be created in the `dist/` directory.
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 broun/
@@ -102,7 +102,7 @@ broun/
 └── music/              # Background music (optional)
 ```
 
-## 🔧 Technical Details
+## Technical Details
 
 - **Physics Engine**: Custom particle system with collision detection
 - **Rendering**: Pygame for graphics and UI
@@ -117,34 +117,16 @@ broun/
 - **Particle Radius**: 7 pixels (configurable)
 - **Default Particle Count**: 150 (configurable)
 
-## 🎨 Screenshots
-
-*Add screenshots here to showcase the simulation in different states*
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to:
-- Report bugs
-- Suggest new features
-- Submit pull requests
-- Improve documentation
-
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👤 Author
+## Author
 
 **Serdgio1**
 
 - GitHub: [@Serdgio1](https://github.com/Serdgio1)
 
-## 🙏 Acknowledgments
-
-- Built with [Pygame CE](https://github.com/pygame-community/pygame-ce)
-- UI powered by [pygame_gui](https://github.com/MyreMylar/pygame_gui)
-- Physics calculations using [NumPy](https://numpy.org/)
-
 ---
 
-⭐ If you find this project interesting, consider giving it a star!
+If you find this project interesting, consider giving it a star!
